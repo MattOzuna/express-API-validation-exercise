@@ -43,6 +43,10 @@ describe("GET /book/:id", () => {
         expect(response.statusCode).toBe(200)
         expect(response.body).toEqual({ book: testBook })
     })
+    test('Expects error for wrong book id', async () => {
+        const response = await request(app).get('/books/222222222')
+        expect(response.statusCode).toBe(404)
+    })
 })
 
 describe("DELETE /books/:id", () => {
@@ -54,6 +58,10 @@ describe("DELETE /books/:id", () => {
         const dbResult = await db.query('SELECT * FROM books')
         expect(dbResult.rows).toEqual([])
     })
+    test('Expects error for wrong book id', async () => {
+        const response = await request(app).delete('/books/222222222')
+        expect(response.statusCode).toBe(404)
+    })
 })
 
 describe("POST /books", () => {
@@ -62,6 +70,22 @@ describe("POST /books", () => {
         const response = await request(app).post('/books').send(testBook)
         expect(response.statusCode).toBe(201)
         expect(response.body).toEqual({book: testBook})
+    })
+    test('Expect list of errors for sending no book data', async () => {
+        const response = await request(app).post('/books').send({})
+        expect(response.statusCode).toBe(400)
+        expect(response.body.message).toEqual(
+            [
+                "instance requires property \"isbn\"",
+                "instance requires property \"amazon_url\"",
+                "instance requires property \"author\"",
+                "instance requires property \"language\"",
+                "instance requires property \"pages\"",
+                "instance requires property \"publisher\"",
+                "instance requires property \"title\"",
+                "instance requires property \"year\""
+            ]
+        )
     })
 })
 
@@ -88,6 +112,22 @@ describe("PUT /books/:id", () => {
             title: "Power-Up: Unlocking the Hidden Mathematics in Video Games",
             year: 2017
         }})
+    })
+    test('Expect list of errors for sending no book data', async () => {
+        const response = await request(app).put('/books/1234567891').send({})
+        expect(response.statusCode).toBe(400)
+        expect(response.body.message).toEqual(
+            [
+                "instance requires property \"isbn\"",
+                "instance requires property \"amazon_url\"",
+                "instance requires property \"author\"",
+                "instance requires property \"language\"",
+                "instance requires property \"pages\"",
+                "instance requires property \"publisher\"",
+                "instance requires property \"title\"",
+                "instance requires property \"year\""
+            ]
+        )
     })
 })
 
